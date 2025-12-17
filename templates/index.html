@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris Flower Classification</title>
+    <style>
+        :root{
+            --bg:#f4f7fb;
+            --card:#ffffff;
+            --primary:#2b7cff;
+            --muted:#6b7280;
+            --success:#16a34a;
+            --danger:#ef4444;
+            --radius:10px;
+            --max-width:720px;
+            font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+        }
+        /* Background image (place your image at static/images.jpeg).
+           Fallback to gradient color if the image is missing.
+        */
+        html,body{height:100%;margin:0;background:
+            linear-gradient(rgba(255,255,255,0.25), rgba(255,255,255,0.25)),
+            url('/static/images.jpeg') center/cover no-repeat,
+            linear-gradient(180deg,#edf2ff 0%,var(--bg) 100%);
+        }
+        .wrap{min-height:100%;display:flex;align-items:center;justify-content:center;padding:32px}
+        .card{background:var(--card);max-width:var(--max-width);width:100%;box-shadow:0 6px 20px rgba(15,23,42,0.08);border-radius:var(--radius);padding:28px}
+        h1{margin:0 0 6px;font-size:20px;color:#0f172a}
+        p.lead{margin:0 0 18px;color:var(--muted);font-size:14px}
+        form .grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+        label{display:block;font-size:13px;color:#111827;margin-bottom:6px}
+    /* inputs: allow fine-grained decimals (step controls precision) */
+    input[type="number"], input[type="text"]{width:100%;padding:10px 12px;border:1px solid #e6e9ee;border-radius:8px;font-size:14px}
+        .help{font-size:12px;color:var(--muted);margin-top:6px}
+        .actions{display:flex;gap:10px;align-items:center;margin-top:18px}
+        button.btn{background:var(--primary);color:white;padding:10px 14px;border-radius:8px;border:0;cursor:pointer}
+        button.btn.secondary{background:transparent;color:var(--primary);border:1px solid rgba(43,124,255,0.12)}
+        .result{margin-top:18px;padding:12px;border-radius:8px;font-size:15px}
+        .result .label{font-size:13px;color:var(--muted)}
+        .result .value{font-weight:600;margin-top:6px;display:block}
+        .result.success{background:rgba(22,163,74,0.08);border:1px solid rgba(22,163,74,0.12);color:var(--success)}
+        .result.unknown{background:rgba(99,102,241,0.06);border:1px solid rgba(99,102,241,0.08);color:#4f46e5}
+        footer{margin-top:12px;font-size:13px;color:var(--muted);text-align:right}
+        @media (max-width:520px){.form .grid{grid-template-columns:1fr}}
+    </style>
+</head>
+<body>
+    <div class="wrap">
+        <div class="card">
+            <header>
+                <h1>Iris Flower Classification</h1>
+                <p class="lead">Enter the measurements (in cm) and click Predict.</p>
+            </header>
+
+            <form action="/predict" method="POST" class="form" autocomplete="off">
+                <div class="grid">
+                    <div>
+                        <label for="sepal_length">Sepal Length</label>
+                        <input id="sepal_length" name="sepal_length" type="number" step="0.01" inputmode="decimal" pattern="^\d+(?:\.\d+)?$" min="0" placeholder="e.g. 5.12" title="Enter value in cm (decimals allowed)" required>
+                    </div>
+                    <div>
+                        <label for="sepal_width">Sepal Width</label>
+                        <input id="sepal_width" name="sepal_width" type="number" step="0.01" inputmode="decimal" pattern="^\d+(?:\.\d+)?$" min="0" placeholder="e.g. 3.45" title="Enter value in cm (decimals allowed)" required>
+                    </div>
+                    <div>
+                        <label for="petal_length">Petal Length</label>
+                        <input id="petal_length" name="petal_length" type="number" step="0.01" inputmode="decimal" pattern="^\d+(?:\.\d+)?$" min="0" placeholder="e.g. 1.42" title="Enter value in cm (decimals allowed)" required>
+                    </div>
+                    <div>
+                        <label for="petal_width">Petal Width</label>
+                        <input id="petal_width" name="petal_width" type="number" step="0.01" inputmode="decimal" pattern="^\d+(?:\.\d+)?$" min="0" placeholder="e.g. 0.24" title="Enter value in cm (decimals allowed)" required>
+                    </div>
+                </div>
+
+                <div class="actions">
+                    <button type="submit" class="btn">Predict</button>
+                    <button type="reset" class="btn secondary">Reset</button>
+                    <div style="margin-left:auto;color:var(--muted);font-size:13px">Model: saved_model.sav</div>
+                </div>
+
+                {% if result %}
+                <div class="result {% if result.lower() in ['setosa','versicolor','virginica'] %}success{% else %}unknown{% endif %}">
+                    <div class="label">Prediction</div>
+                    <div class="value">{{ result }}</div>
+                    <div class="help">Note: prediction depends on model; sample values above are only a guide.</div>
+                </div>
+                {% endif %}
+            </form>
+
+        </div>
+    </div>
+</body>
+</html>
