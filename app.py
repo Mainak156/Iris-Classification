@@ -8,8 +8,11 @@ app = Flask(__name__, static_folder='static', template_folder='templates')
 app.secret_key = os.environ.get("SECRET_KEY", "dev-secret-key")
 
 MODEL_PATH = os.path.join(os.path.dirname(__file__), "saved_model.sav")
+SCALER_PATH = os.path.join(os.path.dirname(__file__), "scaler.sav")
 logger = logging.getLogger(__name__)
 logging.basicConfig(level=logging.INFO)
+
+print("Model path:", MODEL_PATH)
 
 def load_model(path):
     if not os.path.exists(path):
@@ -23,8 +26,22 @@ def load_model(path):
     except Exception as e:
         logger.exception("Failed to load model: %s", e)
         return None
+    
+def load_scaler(path):
+    if not os.path.exists(path):
+        logger.error("Scaler file not found at: %s", path)
+        return None
+    try:
+        with open(path, "rb") as f:
+            m = pickle.load(f)
+            logger.info("Scaler loaded from %s", path)
+            return m
+    except Exception as e:
+        logger.exception("Failed to load scaler: %s", e)
+        return None
 
 model = load_model(MODEL_PATH)
+scaler = load_scaler(SCALER_PATH)
 
 @app.route('/')
 def home():
@@ -56,9 +73,12 @@ def predict():
         return render_template('index.html', result="Error: input values out of expected range")
 
     try:
-        pred = model.predict([[sepal_length, sepal_width, petal_length, petal_width]])[0]
+        X = [[sepal_length, sepal_width, petal_length, petal_width]]
+        X_scaled = scaler.transform(X)
+        pred = model.predict(X_scaled)[0]
         # ensure string for template checks
         pred_label = str(pred)
+        print(f"Predicted label: {pred_label}")
         # optional: compute confidence if model supports it
         confidence = None
         if hasattr(model, "predict_proba"):
